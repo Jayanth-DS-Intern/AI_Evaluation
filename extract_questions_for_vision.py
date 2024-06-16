@@ -104,13 +104,16 @@ b) What is the average velocity of Rob?" should be extracted as:
     Now you have to extract all the question i,ii and iii at a time.
               
 9. Multiple choice questions(MCQS):
-    For example: 4. How can the strength of the current in a coil be increased?
-    (i) By using multiple cells connected to the coil
-    (ii) By reducing the number of turns in the coil
-    (iii) By using non-magnetic materials for the core
-    (iv) By decreasing the strength of the current
+    For example:
+
+   4. How can the strength of the current in a coil be increased?
               
-    you have to extract as :  "4. How can the strength of the current in a coil be increased? (i) By using multiple cells connected to the coil (ii) By reducing the number of turns in the coil (iii) By using non-magnetic materials for the core (iv) By decreasing the strength of the current  (MaximumMarks:1, Diagram_Needed:No)"
+  A or (i) By using multiple cells connected to the coil
+  B or (ii) By reducing the number of turns in the coil
+  C or (iii) By using non-magnetic materials for the core
+  D or (iv) By decreasing the strength of the current
+              
+    you have to extract as :  "4. How can the strength of the current in a coil be increased? A or (i) By using multiple cells connected to the coil, B or (ii) By reducing the number of turns in the coil, C or (iii) By using non-magnetic materials for the core D or (iv) By decreasing the strength of the current  (MaximumMarks:1, Diagram_Needed:No)"
               
 10. Fill in the blanks:
     For example if you saw text like this: Fill in the blanks.
@@ -181,7 +184,8 @@ Note2: Provide the same questions numbers and MaximumMarks that are present in g
             seed=92,
             top_p=0.0000000000000000000001,
             temperature=0,
-            tool_choice="required"
+            tool_choice="required",
+            max_tokens=4096
         )
         
          
@@ -206,7 +210,7 @@ Note2: Provide the same questions numbers and MaximumMarks that are present in g
             s_t = time.time()
             pdf_bytes = uploaded_pdf.read()
 
-            poller = self.document_analysis_client.begin_analyze_document("prebuilt-read", pdf_bytes)
+            poller = self.document_analysis_client.begin_analyze_document("prebuilt-idDocument", pdf_bytes)
             result = poller.result()
 
             # Extract the text content
@@ -226,7 +230,7 @@ Note2: Provide the same questions numbers and MaximumMarks that are present in g
         #  print("response of questions extraction model-------->",response)
             fb = json.loads(response)
             all_the_questions = [item['question'] for item in fb['feedback']]
-            print(all_the_questions)
+            st.write(all_the_questions)
             file_path = 'list_of_questions_for_vision.txt'
             self.save_questions_to_file(all_the_questions, file_path)
             print(f"Questions saved to {file_path}")

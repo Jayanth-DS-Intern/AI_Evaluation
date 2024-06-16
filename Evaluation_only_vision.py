@@ -6,13 +6,13 @@ from extract_questions_for_vision import PDFQuestionExtractor
 import concurrent.futures
 from logger import logger
 
-# api_key = os.environ['openai_api_key']
-# azure_endpoint = os.environ['azure_endpoint']
-# azure_key = os.environ['azure_key']
+api_key = os.environ['openai_api_key']
+azure_endpoint = os.environ['azure_endpoint']
+azure_key = os.environ['azure_key']
 
-api_key = st.secrets['openai_api_key']
-azure_endpoint = st.secrets['azure_endpoint']
-azure_key = st.secrets['azure_key']
+# api_key = st.secrets['openai_api_key']
+# azure_endpoint = st.secrets['azure_endpoint']
+# azure_key = st.secrets['azure_key']
 
 class AI_Evaluate:
     def __init__(self,api_key,azure_key,azure_endpoint):
@@ -185,8 +185,9 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
             "messages": [
                 {"role": "system", "content": """You are a teacher who evaluates students answers and give marks based on the MaximumMarks provided for the question and Feedback on the given data.Ignore Spelling Mistakes.
 
-        👉 As a teacher, your primary responsibility is to evaluate the students' work. You don't need to solve the problems yourself; simply review and assess the answers they have provided.
-        👉 (Remember): after taking the question number from the given question do not remove it. Give the complete question given to you.    
+        
+        As a teacher, your primary responsibility is to evaluate the students' work based on the answers they have provided. You should not use external knowledge to generate answers. Please evaluate and comment solely on the answers given in the images provided by the students
+        (Remember): after taking the question number from the given question do not remove it. Give the complete question given to you.    
                     
         As a teacher Consider the following guidelines while consdering and evaluating the given question:
 
@@ -200,7 +201,7 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
                     When questions like above are given, you have to clearly serach for the question in it that needs diagram and you have to evaluate other parts with answer provided. 
             remember: you must give response.
                     
-        👉 You should give the same question (which contains question number, MaximumMarks and DiagramNeeded) as given to you. Because you don't have the right to give maximummarks to a question or anything.
+        You should give the same question (which contains question number, MaximumMarks and DiagramNeeded) as given to you. Because you don't have the right to give maximummarks to a question or anything.
             
         Give the output that should contain Question,overall score, and following metrics:
 
@@ -223,20 +224,26 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
         9)Integration of Sources: If applicable, evaluate the student's ability to integrate information from multiple sources (e.g., textbooks, articles, lectures) into their response. Are sources properly cited and integrated into the discussion?
 
         10)Argumentation and Logic: Assess the strength of the student's arguments and the logical coherence of their reasoning. Are arguments well-supported with evidence and logical reasoning?
-
-        11)Grammar and Mechanics: Consider the student's use of grammar, punctuation, and spelling. Are there any grammatical errors or typos that affect the clarity of the response?
             
-        12)Diagram(If needed for question) : Provide detailed feedback on student's handwritten diagram, explaining why it is correct or incorrect along with errors or improvements needed.
+        11)Diagram(If needed for question) : Provide detailed feedback on student's handwritten diagram, explaining why it is correct or incorrect along with errors or improvements needed.
             
-        13)Overall Quality: Provide an overall assessment of the quality of the student's response. Consider all of the above metrics in conjunction to determine the overall effectiveness of the response.
+        12)Overall Quality: Provide an overall assessment of the quality of the student's response. Consider all of the above metrics in conjunction to determine the overall effectiveness of the response.
 
+        First, thoroughly read the provided answer. Then, determine the key points that should be covered to fully answer the question.
+                     
+        13) Points Covered: Identify and list the key points from the question that are included in the provided answer.
+                
+        14) Points Missing: Identify and list the key points from the question that are not included in the provided answer.
+                 
         Make sure to provide all metrics.If not applicable ignore the specific metric by saying N/A. ensuring to include a newline character at the end to properly format your result.Display both Question and Answer written.
 
+        15)Answer For the Question: Please provide a clear and concise answer suitable for students of grade 6 to 10th. Ensure the explanation is thorough but easy to comprehend. Here is the question: {question}
+                 
         Example response:
         "1. Question: What is the Role of roughages in the Alimentary tract. (MaximumMarks:2, Diagram_Needed:No)?
         Answer: Promoting Digestive Health, Aiding in weight management, Regulating Blood Sugar level, lowering cholesterol levels, preventing colon Cancer
 
-        Overall Score: 1.5/2
+        Overall Score: 2/2
 
         1) Accuracy:  High
         2) Relevance:  High
@@ -250,20 +257,19 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
         11) Grammar and Mechanics: Satisfactory
         12) Diagram: Not Applicable.
         13) Feedback: Great job! Your answer accurately covers the roles of roughage but could benefit from more detail on how each role is performed.
-
         14) Overall Quality:  High
                 
-        Overall Score: 1.5/2
+        Overall Score: 2/2
                  
-    👉  Additionally, remember: for two different questions, there can't be same answer in the images provided. If you evaluated one question initially with one answer, then this answer will not be the answer to any question given next. And also do not provide overall score as 0.2,0.7,2.2,3.8 you should always provide in terms of o.5 or full marks like 1.5,0.5,0,2.5 like this.
-                 
+    Additionally, remember: for two different questions, there can't be same answer in the images provided. If you evaluated one question initially with one answer, then this answer will not be the answer to any question given next. And also do not provide overall score as 0.2,0.7,2.2,3.8 you should always provide in terms of o.5 or full marks like 1.5,0.5,0,2.5 like this.
+    Remember: sometimes student writes the answer in next image in continution so do not consider that complete answer present in one image only, consider the next image if answer is there or not in continution.And also you must provide all the metric values specially: overall score for every question given to you!. Additionally, remember: for two different questions, there can't be same answer in the images provided. If you evaluated one question initially with one answer, then this answer will not be the answer to any question given next.             
     Note1:  For the value of topic you do not take the question. topic will be the concept from which the question is curated. And YOU MUST PROVIDE ALL THE METRIC VALUES and any string should not be unterminated!!!.
     Note2: You MUST USE TOOLS!. If you don't find the answer and diagram(if needed) it means student has not written the answer, then move to next question by saying the student has not written the answer. Also remember not to create new or new sentences from the students answers, extract them completely and evaluate it. If the question needs a diagram, do evaluate it and give feedback on the diagram as well.Don't use tools in parallel.   
                 """},
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": f"YOU MUST ALWAYS CALL TOOLS!. Find the relevant answer for the question: {question} in the given image and give response accurately.sometimes student writes the answer in next image in continution so do not consider that complete answer present in one image only, consider the next image if answer is there or not in continution.And also you must provide all the metric values specially: overall score for every question given to you!. Additionally, remember: for two different questions, there can't be same answer in the images provided. If you evaluated one question initially with one answer, then this answer will not be the answer to any question given next. And also do not provide overall score as 0.2,0.7,2.2,3.8 you should always provide in terms of o.5 or full marks like 1.5,0.5,0,2.5 like this."},
+                        {"type": "text", "text": f"YOU MUST ALWAYS CALL TOOLS!. Find the relevant answer for the question: {question} in the given image and give response accurately.sometimes student writes the answer in next image in continution so do not consider that complete answer present in one image only, consider the next image if answer is there or not in continution.And also you must provide all the metric values specially: overall score (Very Important) for every question given to you!. Additionally, remember: for two different questions, there can't be same answer in the images provided. If you evaluated one question initially with one answer, then this answer will not be the answer to any question given next. And also do not provide overall score as 0.2,0.7,2.2,3.8 you should always provide in terms of o.5 or full marks like 1.5,0.5,0,2.5 like this."},
                         *[
                             {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}","detail": "high"}}
                             for base64_image in base64_images
@@ -291,12 +297,18 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
                         "items": {
                             "type": "object",
                             "properties": {
-                                "question": {
+                "question": {
                                     "type": "string"
                                 },
-                                "answer": {
+
+                 "Answer For the Question": {
                                     "type": "string"
                                 },
+
+                "Student_Answer": {
+                                    "type": "string"
+                                },
+                            
 				"Accuracy": {
                                     "type": "string"
                                 },
@@ -315,9 +327,9 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
 				"Use of Examples": {
                                     "type": "string"
                                 },
-				"Grammar and Mechanics": {
-                                    "type": "string"
-                                },
+				# "Grammar and Mechanics": {
+                #                     "type": "string"
+                #                 },
 				"Overall Quality": {
                                     "type": "string"
                                 },
@@ -325,7 +337,19 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
                                     "type": "number"
                                 },
                       "feedback" : {
-                                    "type":"string"
+                                    "type":"string",
+                                    "items":{
+                                        "type":"object",
+                                        "properties":{
+                                             "Points Covered": {
+                                                       "type": "string"
+                                                         },
+                                             "Points Missing": {
+                                                      "type": "string"
+                                                        },
+                                        },
+                                        "required": ['Points Covered', "Points Missing"]
+                                    }
                                 },
                         "Diagram":{
                                     "type":"string"
@@ -334,7 +358,7 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
                                     "type": "number",
                  
                                 },                            },
-                            "required": ["question", "answer","Accuracy","Relevance","Completeness","Depth of Understanding","Clarity of Expression","Use of Examples","Grammar and Mechanics","Diagram","Overall Quality","feedback","No of words used","Overal Score"]
+                            "required": ["question","Answer For the Question" ,"Student_Answer","Accuracy","Relevance","Completeness","Depth of Understanding","Clarity of Expression","Use of Examples","Diagram","Overall Quality","feedback","No of words used","Overal Score"]
                         }
                     }
                 },
@@ -343,9 +367,9 @@ def Analyize_answers(question, answers_pdf, OUTPUT_FOLDER):
         }
         }
     ],
-            "max_tokens": 1500,
+            "max_tokens": 4096,
             "temperature":0,
-            "top_p":0.000000000000000001,
+            "top_p":0,
             "seed":92,
             "tool_choice":"required"
         }
@@ -508,6 +532,11 @@ if __name__ == "__main__":
                     file_name = 'Evaluation_sheet_without_teacher_solutions_using_GPT4o.txt'
                     save_evaluated_answers(file_path=file_name,questions=evaluated_sheet)
                     logger.info(f"Saved evaluated sheet to:{file_name}")
+
+                Marks = 0
+                for item in evaluated_sheet:
+                     Marks = Marks + item['feedback'][0]['Overal Score']
+                st.write(f"Scored Marks: {Marks}")
                 st.write("Paper Evaluation is done ✅")
                 st.write("Skip the Checkbox at sidebar, if you want to evalute another student answers for the same question paper")
                  
