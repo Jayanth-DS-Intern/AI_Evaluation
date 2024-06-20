@@ -520,7 +520,7 @@ if __name__ == "__main__":
 
 
                 st.write("Now Paper Evaluation is Started. You will get to see Marks Very soon. Thanks for the Patience...")
-                questions_chunks = chunkify(list_of_questions,chunk_size=8)
+                questions_chunks = chunkify(list_of_questions,chunk_size=4)
                 evaluated_sheet =[]
                 for chunk in questions_chunks:
                     results = process_chunk(analyze_function=Analyize_answers,question_chunk=chunk,temp_pdf_path=temp_pdf_path,temp_dir=temp_dir)

@@ -34,9 +34,11 @@ class PDFQuestionExtractor:
     def evaluation(self, feedback, topic):
         return json.dumps({"feedback": feedback, "topic": topic})
 
-    def analyze_answers(self, topic, data):
+    def analyze_answers(self, data):
         messages = [
-             {"role": "system", "content": ''' You're a expert text extractor you will be provided a text file your task is to extract all the questions with question numbers by Considering the following guidelines while extracting questions:
+             {"role": "system", "content": '''  
+            
+You're a expert text extractor you will be provided a text file your task is to extract all the questions with question numbers by Considering the following guidelines while extracting questions:
 
 When you are extrating the questions you should also extract the maximum number of marks for that question, For a particular section no.of questions and Marks for each will given at the starting of the section, all the questions below that section will have carry same marks(remember).      
 
@@ -103,14 +105,26 @@ b) What is the average velocity of Rob?" should be extracted as:
              --options--
     Now you have to extract all the question i,ii and iii at a time.
               
-9. Multiple choice questions(MCQS):
-    For example: 4. How can the strength of the current in a coil be increased?
+9. (Remember) Multiple choice questions(MCQS):
+    - Extract all types of MCQs regardless of how the options are labeled (e.g., (i), (ii), (iii), (iv) or (a), (b), (c), (d) or A, B, C, D).
+    example 1:
+     4. How can the strength of the current in a coil be increased?
     (i) By using multiple cells connected to the coil
     (ii) By reducing the number of turns in the coil
     (iii) By using non-magnetic materials for the core
     (iv) By decreasing the strength of the current
               
     you have to extract as :  "4. How can the strength of the current in a coil be increased? (i) By using multiple cells connected to the coil (ii) By reducing the number of turns in the coil (iii) By using non-magnetic materials for the core (iv) By decreasing the strength of the current  (MaximumMarks:1, Diagram_Needed:No)"
+              
+    - Example 2:
+     ```
+     "5. Which of the following is a renewable source of energy?
+     A) Coal
+     B) Oil
+     C) Solar
+     D) Natural Gas" should be extracted as:
+     "5. Which of the following is a renewable source of energy? A) Coal B) Oil C) Solar D) Natural Gas (MaximumMarks:1, Diagram_Needed:No)"
+     ```
               
 10. Fill in the blanks:
     For example if you saw text like this: Fill in the blanks.
@@ -135,7 +149,9 @@ Question Number: For example IF the given text is like this:
                          
 Note1: The values for MaximumMarks and Diagram_Needed should not be strings they should be like this: ('MaximumMarks':2, 'Diagram_Needed':No) not like this: ('MaximumMarks': '2', 'Diagram_Needed': 'No')
             
-Note2: Provide the same questions numbers and MaximumMarks that are present in given data:{data}'''},
+Note2: Provide the same questions numbers and MaximumMarks that are present in given data:{data}
+
+              '''},
             {"role": "user", "content": f"Your main job is to extract all the questions from the provided data: {data}. Do not provide none as response. You must call tools and do provide the system_fingerprint value."}
         ]
 
@@ -181,7 +197,8 @@ Note2: Provide the same questions numbers and MaximumMarks that are present in g
             seed=92,
             top_p=0.0000000000000000000001,
             temperature=0,
-            tool_choice="required"
+            tool_choice="required",
+            max_tokens=4096
         )
         
          
@@ -220,13 +237,13 @@ Note2: Provide the same questions numbers and MaximumMarks that are present in g
             # Analyze answers with GPT model
             st.write("Questions Extraction is started 🧑‍💻. Please wait...")
             start_time = time.time()
-            response = self.analyze_answers("question paper", content)
+            response = self.analyze_answers( content)
             end_time = time.time()
             print(f"Time taken to get the list of questions:{end_time-start_time} sec")
         #  print("response of questions extraction model-------->",response)
             fb = json.loads(response)
             all_the_questions = [item['question'] for item in fb['feedback']]
-            print(all_the_questions)
+            st.write(all_the_questions)
             file_path = 'listofquestions.txt'
             self.save_questions_to_file(all_the_questions, file_path)
             print(f"Questions saved to {file_path}")

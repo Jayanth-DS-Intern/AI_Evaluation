@@ -103,18 +103,26 @@ b) What is the average velocity of Rob?" should be extracted as:
              --options--
     Now you have to extract all the question i,ii and iii at a time.
               
-9. Multiple choice questions(MCQS):
-    For example:
-
-   4. How can the strength of the current in a coil be increased?
+9. (Remember) Multiple choice questions(MCQS):
+    - Extract all types of MCQs regardless of how the options are labeled (e.g., (i), (ii), (iii), (iv) or (a), (b), (c), (d) or A, B, C, D).
+    example 1:
+     4. How can the strength of the current in a coil be increased?
+    (i) By using multiple cells connected to the coil
+    (ii) By reducing the number of turns in the coil
+    (iii) By using non-magnetic materials for the core
+    (iv) By decreasing the strength of the current
               
-  A or (i) By using multiple cells connected to the coil
-  B or (ii) By reducing the number of turns in the coil
-  C or (iii) By using non-magnetic materials for the core
-  D or (iv) By decreasing the strength of the current
+    you have to extract as :  "4. How can the strength of the current in a coil be increased? (i) By using multiple cells connected to the coil (ii) By reducing the number of turns in the coil (iii) By using non-magnetic materials for the core (iv) By decreasing the strength of the current  (MaximumMarks:1, Diagram_Needed:No)"
               
-    you have to extract as :  "4. How can the strength of the current in a coil be increased? A or (i) By using multiple cells connected to the coil, B or (ii) By reducing the number of turns in the coil, C or (iii) By using non-magnetic materials for the core D or (iv) By decreasing the strength of the current  (MaximumMarks:1, Diagram_Needed:No)"
-              
+    - Example 2:
+     ```
+     "5. Which of the following is a renewable source of energy?
+     A) Coal
+     B) Oil
+     C) Solar
+     D) Natural Gas" should be extracted as:
+     "5. Which of the following is a renewable source of energy? A) Coal B) Oil C) Solar D) Natural Gas (MaximumMarks:1, Diagram_Needed:No)"
+     ```  
 10. Fill in the blanks:
     For example if you saw text like this: Fill in the blanks.
                                           .....

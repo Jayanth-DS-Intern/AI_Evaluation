@@ -241,7 +241,7 @@ def analyze_answers(headers, question, answer, answers_pdf, output_folder):
                     }
                 }
             ],
-            "max_tokens": 1500,
+            "max_tokens": 4096,
             "temperature": 0,
             "top_p": 0.000000000000000001,
             "seed": 102,
